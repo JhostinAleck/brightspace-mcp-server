@@ -14,4 +14,38 @@ describe('redactSecrets', () => {
   it('leaves regular text alone', () => {
     expect(redactSecrets('just some text')).toBe('just some text');
   });
+
+  it('redacts Bearer tokens with base64 chars /, +, =', () => {
+    expect(redactSecrets('Bearer A/B+C==')).toBe('Bearer [REDACTED]');
+  });
+
+  it('redacts lowercase bearer prefix', () => {
+    expect(redactSecrets('authorization: bearer abc.def.ghi')).toContain('Bearer [REDACTED]');
+  });
+
+  it('redacts Set-Cookie headers', () => {
+    expect(redactSecrets('Set-Cookie: session=xyz; Path=/')).toContain('Cookie: [REDACTED]');
+  });
+
+  it('redacts JSON-serialized Cookie field', () => {
+    const input = JSON.stringify({ Cookie: 'sessionid=abc' });
+    expect(redactSecrets(input)).toBe('{"Cookie":"[REDACTED]"}');
+  });
+
+  it('redacts JSON-serialized Authorization field', () => {
+    const input = JSON.stringify({ Authorization: 'Bearer tok_abc' });
+    // Either the JSON pattern or the Bearer pattern should catch it.
+    expect(redactSecrets(input)).not.toContain('tok_abc');
+  });
+
+  it('redacts long base32 runs (>32 chars)', () => {
+    const long = 'A'.repeat(40); // 40 uppercase A's — classic bypass case
+    expect(redactSecrets(`secret=${long}`)).toBe('secret=[REDACTED]');
+  });
+
+  it('redacts multiple secrets in one line', () => {
+    const out = redactSecrets('Cookie: x=1\nBearer tok.en');
+    expect(out).toContain('Cookie: [REDACTED]');
+    expect(out).toContain('Bearer [REDACTED]');
+  });
 });
