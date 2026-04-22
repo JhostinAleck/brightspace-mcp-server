@@ -13,6 +13,8 @@ export interface TotpMfaStrategyOptions {
   algorithm: 'SHA1' | 'SHA256' | 'SHA512';
 }
 
+const ALLOWED_ALGORITHMS = ['SHA1', 'SHA256', 'SHA512'] as const;
+
 // otplib's AuthenticatorOptions.algorithm is typed as the HashAlgorithms enum,
 // whose string values are the lowercase algorithm names. Since otplib v12 does
 // not declare `otplib/core` as a TS-visible subpath export, we mirror the
@@ -26,7 +28,13 @@ type OtpAlgorithm = Parameters<typeof authenticator.clone>[0] extends {
 export class TotpMfaStrategy implements MfaStrategy {
   readonly kind = 'totp' as const;
 
-  constructor(private readonly opts: TotpMfaStrategyOptions) {}
+  constructor(private readonly opts: TotpMfaStrategyOptions) {
+    if (!ALLOWED_ALGORITHMS.includes(opts.algorithm)) {
+      throw new Error(
+        `TotpMfaStrategy: unsupported algorithm "${opts.algorithm}". Must be one of: ${ALLOWED_ALGORITHMS.join(', ')}`,
+      );
+    }
+  }
 
   async solve(challenge: MfaChallenge): Promise<MfaResponse> {
     if (challenge.kind !== 'totp_code') {
