@@ -15,8 +15,8 @@
     "CHANGELOG.md"
   ],
   "scripts": {
-    "build": "tsc",
-    "build:clean": "rm -rf build && tsc",
+    "build": "tsc && tsc-alias",
+    "build:clean": "rm -rf build && tsc && tsc-alias",
     "dev": "tsc --watch",
     "start": "node build/cli/main.js serve",
     "test": "vitest",
@@ -46,6 +46,7 @@
     "nock": "^14.0.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.0.0",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.9.0",
     "vitest": "^4.0.0"
   },
