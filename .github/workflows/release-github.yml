@@ -1,0 +1,47 @@
+name: Release GitHub
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Generate CycloneDX SBOM
+        run: npx --yes @cyclonedx/cdxgen@11 -t nodejs -o brightspace-mcp-${{ github.ref_name }}.cdx.json .
+
+      - name: Extract release notes for this tag from CHANGELOG.md
+        id: notes
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          awk "/^## \\[${VERSION}\\]/{flag=1; next} /^## \\[/{flag=0} flag" CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "No CHANGELOG entry found for ${VERSION}; using tag message." > release-notes.md
+          fi
+          echo "path=release-notes.md" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: ${{ steps.notes.outputs.path }}
+          files: |
+            brightspace-mcp-${{ github.ref_name }}.cdx.json
+          generate_release_notes: false
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
