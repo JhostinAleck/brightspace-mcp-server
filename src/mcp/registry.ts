@@ -36,6 +36,11 @@ import {
   submitAssignmentSchema,
   type SubmitAssignmentParams,
 } from './tools/submit-assignment.tool.js';
+import {
+  handlePostDiscussionReply,
+  postDiscussionReplySchema,
+  type PostDiscussionReplyParams,
+} from './tools/post-discussion-reply.tool.js';
 import type { WritesGate } from '@/shared-kernel/writes/WritesGate.js';
 import type { IdempotencyStore } from '@/shared-kernel/idempotency/IdempotencyStore.js';
 import type { AuditLogger } from '@/shared-kernel/audit/AuditLogger.js';
@@ -264,10 +269,11 @@ export function registerAllTools(server: McpServer, deps: ToolDeps): void {
       'post_discussion_reply',
       {
         title: 'Post Discussion Reply',
-        description: 'Post a reply to a discussion topic (writes).',
-        inputSchema: {},
+        description:
+          'Reply to a Brightspace discussion topic. Writes: require --enable-writes + config writes.enabled: true.',
+        inputSchema: postDiscussionReplySchema.shape,
       },
-      async () => ({ content: [{ type: 'text', text: 'stub' }] }),
+      async (args) => handlePostDiscussionReply(args as PostDiscussionReplyParams, deps),
     );
 
     server.registerTool(
