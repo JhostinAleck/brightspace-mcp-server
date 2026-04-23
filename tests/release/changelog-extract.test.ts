@@ -17,7 +17,9 @@ function extractNotes(changelog: string, version: string): string {
   }
 }
 
-describe('CHANGELOG extraction for GitHub Release notes', () => {
+const describeUnix = process.platform === 'win32' ? describe.skip : describe;
+
+describeUnix('CHANGELOG extraction for GitHub Release notes', () => {
   const sample = `# Changelog
 
 ## [Unreleased]

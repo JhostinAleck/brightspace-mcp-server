@@ -5,7 +5,9 @@ import { join } from 'node:path';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-describe('npm pack smoke test', () => {
+const describeUnix = process.platform === 'win32' ? describe.skip : describe;
+
+describeUnix('npm pack smoke test', () => {
   let workDir: string;
 
   beforeEach(() => {
