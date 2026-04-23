@@ -44,4 +44,57 @@ describe('D2lApiClient.get', () => {
         }),
     ).toThrow();
   });
+
+  it('retries on 5xx and eventually returns body', async () => {
+    nock(BASE).get('/flaky').reply(503, 'nope');
+    nock(BASE).get('/flaky').reply(200, { ok: true });
+
+    const client = new D2lApiClient({
+      baseUrl: BASE,
+      getToken: async () => AccessToken.bearer('t'),
+      retry: { maxAttempts: 3, initialMs: 1, maxMs: 10 },
+    });
+    const body = await client.get<{ ok: boolean }>('/flaky');
+    expect(body.ok).toBe(true);
+  });
+
+  it('does not retry on 4xx (except 401/429)', async () => {
+    nock(BASE).get('/bad').reply(400, 'bad request');
+
+    const client = new D2lApiClient({
+      baseUrl: BASE,
+      getToken: async () => AccessToken.bearer('t'),
+      retry: { maxAttempts: 3, initialMs: 1, maxMs: 10 },
+    });
+    await expect(client.get('/bad')).rejects.toMatchObject({ code: 'HTTP_400' });
+  });
+
+  it('returns cached response on second call within TTL', async () => {
+    nock(BASE).get('/cached').reply(200, { n: 1 });
+
+    const client = new D2lApiClient({
+      baseUrl: BASE,
+      getToken: async () => AccessToken.bearer('t'),
+      cacheTtlMs: 60_000,
+    });
+    const a = await client.get<{ n: number }>('/cached');
+    const b = await client.get<{ n: number }>('/cached');
+    expect(a).toEqual({ n: 1 });
+    expect(b).toEqual({ n: 1 });
+    expect(nock.isDone()).toBe(true);
+  });
+
+  it('throws RateLimitedError on 429 with Retry-After', async () => {
+    nock(BASE).get('/throttled').reply(429, 'stop', { 'retry-after': '2' });
+
+    const client = new D2lApiClient({
+      baseUrl: BASE,
+      getToken: async () => AccessToken.bearer('t'),
+      retry: { maxAttempts: 1, initialMs: 1, maxMs: 10 },
+    });
+    await expect(client.get('/throttled')).rejects.toMatchObject({
+      code: 'HTTP_429',
+      retryAfterMs: 2000,
+    });
+  });
 });

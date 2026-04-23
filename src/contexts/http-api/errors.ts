@@ -19,3 +19,14 @@ export class NetworkError extends InfrastructureError {
     super(message, cause);
   }
 }
+
+export class RateLimitedError extends InfrastructureError {
+  readonly code = 'HTTP_429';
+  constructor(
+    readonly path: string,
+    readonly retryAfterMs: number | null,
+    cause?: Error,
+  ) {
+    super(`Rate limited on ${path} (Retry-After=${retryAfterMs === null ? 'unset' : `${retryAfterMs}ms`})`, cause);
+  }
+}
