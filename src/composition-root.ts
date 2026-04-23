@@ -22,7 +22,7 @@ import { HeadlessPasswordStrategy } from '@/contexts/authentication/infrastructu
 import { OAuthStrategy } from '@/contexts/authentication/infrastructure/strategies/OAuthStrategy.js';
 import { BrowserAuthStrategy } from '@/contexts/authentication/infrastructure/strategies/BrowserAuthStrategy.js';
 import { createPlaywrightLoader } from '@/contexts/authentication/infrastructure/strategies/lazy-playwright.js';
-import { SecretValue } from '@/contexts/authentication/domain/SecretValue.js';
+import type { SecretValue } from '@/contexts/authentication/domain/SecretValue.js';
 import { EnsureAuthenticated } from '@/contexts/authentication/application/EnsureAuthenticated.js';
 import { ConfigBackedStrategyResolver } from '@/contexts/authentication/application/ConfigBackedStrategyResolver.js';
 import { D2lApiClient } from '@/contexts/http-api/D2lApiClient.js';
