@@ -5,6 +5,7 @@ import { loadConfig } from '@/shared-kernel/config/loader.js';
 import type { Config } from '@/shared-kernel/config/schema.js';
 import { buildDependencies } from '@/composition-root.js';
 import { startServer } from '@/mcp/server.js';
+import { TransportPolicy } from '@/contexts/http-api/transport/TransportPolicy.js';
 
 export interface ServeOptions {
   profile?: string;
@@ -29,6 +30,11 @@ export async function runServe(opts: ServeOptions): Promise<void> {
     env: process.env,
     cliOverrides: cliOverrides as Partial<Config>,
   });
-  const deps = await buildDependencies({ config });
+
+  const allowLocalHttp = process.env.BRIGHTSPACE_ALLOW_HTTP_LOCALHOST === '1';
+  const deps = await buildDependencies({
+    config,
+    transportPolicy: allowLocalHttp ? TransportPolicy.allowHttpForLocalhost() : TransportPolicy.strict(),
+  });
   await startServer(deps);
 }

@@ -26,6 +26,7 @@ import type { SecretValue } from '@/contexts/authentication/domain/SecretValue.j
 import { EnsureAuthenticated } from '@/contexts/authentication/application/EnsureAuthenticated.js';
 import { ConfigBackedStrategyResolver } from '@/contexts/authentication/application/ConfigBackedStrategyResolver.js';
 import { D2lApiClient } from '@/contexts/http-api/D2lApiClient.js';
+import type { TransportPolicy } from '@/contexts/http-api/transport/TransportPolicy.js';
 import { discoverVersions } from '@/contexts/http-api/VersionDiscovery.js';
 import { callWhoAmI } from '@/contexts/http-api/whoami.js';
 import { D2lCourseRepository } from '@/contexts/courses/infrastructure/D2lCourseRepository.js';
@@ -45,6 +46,7 @@ export interface BuildDependenciesInput {
   config: Config;
   encryptedFilePassphrase?: SecretValue;
   prompter?: Prompter;
+  transportPolicy?: TransportPolicy;
 }
 
 async function buildCredentialStore(
@@ -256,6 +258,7 @@ export async function buildDependencies(input: BuildDependenciesInput): Promise<
     bulkhead: new Bulkhead({ maxConcurrent: 5 }),
     cache: httpCache,
     cacheTtlMs: 60_000,
+    ...(input.transportPolicy ? { transportPolicy: input.transportPolicy } : {}),
   });
 
   const versions = await discoverVersions(baseUrl);

@@ -6,22 +6,17 @@ import { tmpdir } from 'node:os';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-// NOTE: The D2lApiClient rejects http:// URLs by design. This test spawns a
-// mock D2L server on 127.0.0.1 over HTTP, so it currently cannot run without
-// weakening that production guardrail. Plan 3 will introduce a proper
-// transport abstraction that allows HTTP in test contexts. Until then, this
-// test is skipped but kept as a scaffold and documentation of the intended
-// end-to-end path.
-
-describe.skip('E2E smoke: list_my_courses against mock D2L', () => {
+describe('E2E smoke: list_my_courses against mock D2L', () => {
   let mock: Awaited<ReturnType<typeof startMockD2l>>;
   let client: Client;
+  let configPath: string;
 
   beforeAll(async () => {
     mock = await startMockD2l();
-    const configDir = mkdtempSync(join(tmpdir(), 'bsmcp-'));
+    const configDir = mkdtempSync(join(tmpdir(), 'bsmcp-e2e-'));
+    configPath = join(configDir, 'config.yaml');
     writeFileSync(
-      join(configDir, 'config.yaml'),
+      configPath,
       `default_profile: smoke
 profiles:
   smoke:
@@ -33,12 +28,16 @@ profiles:
     );
     const transport = new StdioClientTransport({
       command: 'node',
-      args: ['build/cli/main.js', '--config', join(configDir, 'config.yaml')],
-      env: { ...process.env, SMOKE_TOK: 'tok_test' } as Record<string, string>,
+      args: ['build/cli/main.js', '--config', configPath],
+      env: {
+        ...process.env,
+        SMOKE_TOK: 'tok_test',
+        BRIGHTSPACE_ALLOW_HTTP_LOCALHOST: '1',
+      } as Record<string, string>,
     });
     client = new Client({ name: 'smoke', version: '0' }, {});
     await client.connect(transport);
-  });
+  }, 60_000);
 
   afterAll(async () => {
     await client?.close();
@@ -47,7 +46,21 @@ profiles:
 
   it('lists the single smoke course', async () => {
     const r = await client.callTool({ name: 'list_my_courses', arguments: {} });
-    const text = (r.content as Array<{ text: string }>)[0]?.text ?? '';
+    const text = ((r.content as Array<{ text: string }>)[0])?.text ?? '';
     expect(text).toContain('Smoke 101');
+  });
+
+  it('exposes the new clear_cache tool', async () => {
+    const r = await client.callTool({ name: 'clear_cache', arguments: {} });
+    const text = ((r.content as Array<{ text: string }>)[0])?.text ?? '';
+    expect(text).toMatch(/cleared|no caches/i);
+  });
+
+  it('exposes the new get_diagnostics tool', async () => {
+    const r = await client.callTool({ name: 'get_diagnostics', arguments: {} });
+    const text = ((r.content as Array<{ text: string }>)[0])?.text ?? '';
+    const parsed = JSON.parse(text);
+    expect(parsed.profile).toBe('smoke');
+    expect(parsed.versions.lp).toBe('1.56');
   });
 });
