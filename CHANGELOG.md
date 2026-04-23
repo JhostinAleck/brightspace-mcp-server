@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.8.3] - 2026-04-23
+
+### Fixed
+
+- Added vitest `globalSetup` that builds `src/` once before any test file runs. Previously the E2E smoke test (which spawns `node build/cli/main.js` as a subprocess) crashed with "MCP error -32000: Connection closed" when CI ran `npm run check` before the build step. The `globalSetup` is a no-op when `build/cli/main.js` already exists, so it's free on subsequent test-watch runs.
+
 ## [0.8.2] - 2026-04-23
 
 ### Fixed
