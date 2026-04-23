@@ -1,0 +1,15 @@
+title = "gitleaks config for brightspace-mcp"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known-safe strings in test fixtures"
+regexTarget = "match"
+regexes = [
+  '''JBSWY3DPEHPK3PXP''',
+]
+paths = [
+  '''tests/.*/fixtures/.*''',
+  '''docs/superpowers/.*''',
+]
