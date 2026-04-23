@@ -1,0 +1,10 @@
+{
+  "gradeObjects": [
+    { "Id": 10, "Name": "Exam 1", "GradeType": "Numeric", "MaxPoints": 100, "Weight": 30 },
+    { "Id": 11, "Name": "Project", "GradeType": "Numeric", "MaxPoints": 100, "Weight": 70 }
+  ],
+  "gradeValues": [
+    { "GradeObjectIdentifier": "10", "PointsNumerator": 87, "PointsDenominator": 100, "DisplayedGrade": "87" },
+    { "GradeObjectIdentifier": "11", "PointsNumerator": null, "PointsDenominator": 100, "DisplayedGrade": null }
+  ]
+}
