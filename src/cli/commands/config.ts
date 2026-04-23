@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
@@ -75,6 +75,56 @@ function redactResolved(value: unknown): unknown {
   return out;
 }
 
-export async function runConfigSet(_path: string, _value: string, _opts: ConfigSetOptions): Promise<void> {
-  throw new Error('config set not yet implemented');
+export async function runConfigSet(
+  path: string,
+  value: string,
+  opts: ConfigSetOptions,
+): Promise<void> {
+  const configPath = resolveConfigPath(opts.config);
+  const raw = readFileSync(configPath, 'utf8');
+  const yaml = parseYaml(raw) as Record<string, unknown>;
+
+  setNestedPath(yaml, path.split('.'), coerceScalar(value));
+
+  const serialized = stringifyYaml(yaml);
+
+  // Validate BEFORE writing so a failed validation leaves the original file
+  // untouched. Mirrors the loadConfig invocation in runConfigValidate.
+  loadConfig({ fileContent: serialized, env: {}, cliOverrides: {} });
+
+  writeFileSync(configPath, serialized, { encoding: 'utf8', mode: 0o600 });
+  process.stdout.write(`Updated ${path} in ${configPath}\n`);
+}
+
+function setNestedPath(
+  obj: Record<string, unknown>,
+  parts: string[],
+  value: unknown,
+): void {
+  const [head, ...rest] = parts;
+  if (!head) throw new Error('empty path');
+  if (rest.length === 0) {
+    obj[head] = value;
+    return;
+  }
+  const child = obj[head];
+  if (
+    child === undefined ||
+    child === null ||
+    typeof child !== 'object' ||
+    Array.isArray(child)
+  ) {
+    const fresh: Record<string, unknown> = {};
+    obj[head] = fresh;
+    setNestedPath(fresh, rest, value);
+    return;
+  }
+  setNestedPath(child as Record<string, unknown>, rest, value);
+}
+
+function coerceScalar(value: string): string | number | boolean {
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  if (/^-?\d+$/.test(value)) return Number.parseInt(value, 10);
+  return value;
 }
