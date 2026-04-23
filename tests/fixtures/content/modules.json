@@ -1,0 +1,11 @@
+{
+  "root": [
+    { "Id": 500, "Title": "Week 1", "StartDate": null, "EndDate": null },
+    { "Id": 501, "Title": "Week 2", "StartDate": null, "EndDate": null }
+  ],
+  "structure_500": [
+    { "Id": 5001, "Title": "Lecture 1 slides", "Type": 1, "TypeIdentifier": "File", "Url": "/content/enforced/101/lecture1.pdf", "FileExtension": "pdf" },
+    { "Id": 5002, "Title": "Week 1 quiz", "Type": 1, "TypeIdentifier": "Quiz" }
+  ],
+  "structure_501": []
+}
