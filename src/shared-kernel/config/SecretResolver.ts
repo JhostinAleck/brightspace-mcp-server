@@ -1,6 +1,9 @@
+import type { CredentialStore } from '@/contexts/authentication/domain/CredentialStore.js';
+
 export interface SecretResolverOptions {
   env: Record<string, string | undefined>;
   allowLiteral: boolean;
+  credentialStore?: CredentialStore;
 }
 
 export class SecretResolver {
@@ -16,10 +19,20 @@ export class SecretResolver {
       case 'env':
         return this.opts.env[rest] ?? null;
       case 'literal':
-        if (!this.opts.allowLiteral)
+        if (!this.opts.allowLiteral) {
           throw new Error('literal: refs disallowed. Use --allow-literal-secrets to override.');
+        }
         return rest;
-      // 'keychain' and 'file' added in Plan 2
+      case 'keychain':
+      case 'file': {
+        if (!this.opts.credentialStore) {
+          throw new Error(
+            `${scheme}: secret refs require a credential store. Configure one in your profile or enable the default CompositeCredentialStore.`,
+          );
+        }
+        const value = await this.opts.credentialStore.get(ref);
+        return value ? value.reveal() : null;
+      }
       default:
         throw new Error(`Unknown secret ref scheme: "${scheme}"`);
     }

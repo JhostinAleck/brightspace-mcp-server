@@ -19,9 +19,12 @@ module.exports = {
     },
     {
       name: 'shared-kernel-pure',
-      comment: 'shared-kernel must not depend on contexts',
+      comment: 'shared-kernel must not depend on contexts, except SecretResolver which needs the CredentialStore interface',
       severity: 'error',
-      from: { path: '^src/shared-kernel/' },
+      from: {
+        path: '^src/shared-kernel/',
+        pathNot: ['^src/shared-kernel/config/SecretResolver\\.ts$'],
+      },
       to: { path: '^src/(contexts|mcp|cli)/' },
     },
     {

@@ -32,4 +32,43 @@ describe('SecretResolver', () => {
     const r = new SecretResolver({ env, allowLiteral: false });
     await expect(r.resolve('foo:bar')).rejects.toThrow();
   });
+
+  it('passes keychain: refs to the credential store', async () => {
+    const resolver = new SecretResolver({
+      env: {},
+      allowLiteral: false,
+      credentialStore: {
+        async get(key) {
+          return key === 'keychain:svc/acc'
+            ? { reveal: () => 'kc_val', toString: () => '[REDACTED]', toJSON: () => '[REDACTED]' } as never
+            : null;
+        },
+        async set() {},
+        async delete() {},
+      },
+    });
+    expect(await resolver.resolve('keychain:svc/acc')).toBe('kc_val');
+  });
+
+  it('passes file: refs to the credential store', async () => {
+    const resolver = new SecretResolver({
+      env: {},
+      allowLiteral: false,
+      credentialStore: {
+        async get(key) {
+          return key === 'file:creds/x'
+            ? { reveal: () => 'file_val', toString: () => '[REDACTED]', toJSON: () => '[REDACTED]' } as never
+            : null;
+        },
+        async set() {},
+        async delete() {},
+      },
+    });
+    expect(await resolver.resolve('file:creds/x')).toBe('file_val');
+  });
+
+  it('throws helpful error when credential store missing for keychain:/file:', async () => {
+    const resolver = new SecretResolver({ env: {}, allowLiteral: false });
+    await expect(resolver.resolve('keychain:svc/acc')).rejects.toThrow(/credential store/i);
+  });
 });
