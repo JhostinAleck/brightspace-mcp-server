@@ -48,3 +48,16 @@ export const getUpcomingDueDatesSchema = z.object({
 }).strict();
 
 export type GetUpcomingDueDatesInputSchema = z.infer<typeof getUpcomingDueDatesSchema>;
+
+export const getRosterSchema = z.object({
+  course_id: z.number().int().positive(),
+  role_filter: z.enum(['all', 'student', 'instructor', 'ta']).default('all'),
+}).strict();
+
+export type GetRosterInputSchema = z.infer<typeof getRosterSchema>;
+
+export const getClasslistEmailsSchema = z.object({
+  course_id: z.number().int().positive(),
+}).strict();
+
+export type GetClasslistEmailsInputSchema = z.infer<typeof getClasslistEmailsSchema>;

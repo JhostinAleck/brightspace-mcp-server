@@ -5,6 +5,7 @@ import { LetterGrade } from '@/contexts/grades/domain/LetterGrade.js';
 import type { Feedback } from '@/contexts/assignments/domain/Feedback.js';
 import type { Assignment } from '@/contexts/assignments/domain/Assignment.js';
 import { AssignmentId } from '@/contexts/assignments/domain/AssignmentId.js';
+import type { Classmate } from '@/contexts/courses/Classmate.js';
 
 export function coursesToCompact(courses: Course[]): string {
   if (courses.length === 0) return 'You have no courses.';
@@ -77,4 +78,18 @@ export function assignmentsToDetailed(assignments: Assignment[]): string {
       : '\n  Submissions: none';
     return `• ${a.name} (id=${AssignmentId.toNumber(a.id)})\n  Due: ${due}${instructions}${subs}`;
   }).join('\n');
+}
+
+export function rosterToText(classmates: Classmate[]): string {
+  if (classmates.length === 0) return 'No classmates found.';
+  const lines = classmates.map((c) => {
+    const email = c.email ? ` · ${c.email}` : '';
+    return ` • ${c.displayName} [${c.role}]${email}`;
+  });
+  return `Roster (${classmates.length}):\n${lines.join('\n')}`;
+}
+
+export function emailsToText(emails: string[]): string {
+  if (emails.length === 0) return 'No emails found.';
+  return emails.join(', ');
 }

@@ -8,6 +8,8 @@ import {
   getAssignmentsSchema,
   getUpcomingDueDatesSchema,
   getFeedbackSchema,
+  getRosterSchema,
+  getClasslistEmailsSchema,
 } from './schemas.js';
 import { handleCheckAuth, type CheckAuthDeps } from './tools/check-auth.tool.js';
 import { handleListMyCourses, type ListMyCoursesDeps } from './tools/list-my-courses.tool.js';
@@ -17,6 +19,8 @@ import { handleGetMyGrades, type GetMyGradesDeps } from './tools/get-my-grades.t
 import { handleGetAssignments, type GetAssignmentsDeps } from './tools/get-assignments.tool.js';
 import { handleGetUpcomingDueDates, type GetUpcomingDueDatesDeps } from './tools/get-upcoming-due-dates.tool.js';
 import { handleGetFeedback, type GetFeedbackDeps } from './tools/get-feedback.tool.js';
+import { handleGetRoster, type GetRosterDeps } from './tools/get-roster.tool.js';
+import { handleGetClasslistEmails, type GetClasslistEmailsDeps } from './tools/get-classlist-emails.tool.js';
 
 export interface ToolDeps
   extends CheckAuthDeps,
@@ -26,7 +30,9 @@ export interface ToolDeps
     GetMyGradesDeps,
     GetAssignmentsDeps,
     GetUpcomingDueDatesDeps,
-    GetFeedbackDeps {}
+    GetFeedbackDeps,
+    GetRosterDeps,
+    GetClasslistEmailsDeps {}
 
 export function registerAllTools(server: McpServer, deps: ToolDeps): void {
   server.registerTool(
@@ -126,5 +132,30 @@ export function registerAllTools(server: McpServer, deps: ToolDeps): void {
       inputSchema: getFeedbackSchema.shape,
     },
     async (input: unknown) => handleGetFeedback(deps, input),
+  );
+
+  server.registerTool(
+    'get_roster',
+    {
+      title: 'Get Roster',
+      description:
+        'List classmates, instructors, and TAs for a given course.\n' +
+        'Use when the user asks who is in a class or wants contact info.\n' +
+        'role_filter: "all" (default), "student", "instructor", "ta".',
+      inputSchema: getRosterSchema.shape,
+    },
+    async (input: unknown) => handleGetRoster(deps, input),
+  );
+
+  server.registerTool(
+    'get_classlist_emails',
+    {
+      title: 'Get Classlist Emails',
+      description:
+        'Return the email addresses for everyone enrolled in a course.\n' +
+        'Use when the user wants a mailing list or to contact the class.',
+      inputSchema: getClasslistEmailsSchema.shape,
+    },
+    async (input: unknown) => handleGetClasslistEmails(deps, input),
   );
 }
