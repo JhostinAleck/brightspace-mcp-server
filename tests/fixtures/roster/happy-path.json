@@ -1,0 +1,12 @@
+{
+  "classlist": [
+    { "Identifier": "1001", "DisplayName": "Alice Student", "UserName": "alice", "Email": "alice@x.edu", "RoleId": 109 },
+    { "Identifier": "1002", "DisplayName": "Bob Instructor", "UserName": "bob", "Email": "bob@x.edu", "RoleId": 103 },
+    { "Identifier": "1003", "DisplayName": "Carol TA", "UserName": "carol", "Email": null, "RoleId": 112 }
+  ],
+  "emails": [
+    { "Identifier": "1001", "EmailAddress": "alice@x.edu" },
+    { "Identifier": "1002", "EmailAddress": "bob@x.edu" },
+    { "Identifier": "1003", "EmailAddress": null }
+  ]
+}
