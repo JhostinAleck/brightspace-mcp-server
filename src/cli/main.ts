@@ -32,4 +32,67 @@ program
     }
   });
 
+program
+  .command('setup')
+  .description('Interactive setup wizard (first-time configuration)')
+  .option('--config <path>', 'Path to config YAML (default: ~/.brightspace-mcp/config.yaml)')
+  .option('--skip-client-detection', 'Do not auto-detect MCP clients')
+  .action(async (opts) => {
+    const { runSetup } = await import('./commands/setup.js');
+    await runSetup(opts);
+  });
+
+program
+  .command('auth')
+  .description('Manually re-authenticate the current profile')
+  .option('--profile <name>', 'Profile to authenticate')
+  .option('--config <path>', 'Path to config YAML')
+  .action(async (opts) => {
+    const { runAuth } = await import('./commands/auth.js');
+    await runAuth(opts);
+  });
+
+const configCmd = program.command('config').description('Inspect or edit the config file');
+
+configCmd
+  .command('show')
+  .description('Print the effective config (secret refs redacted)')
+  .option('--config <path>', 'Path to config YAML')
+  .option('--resolved', 'Resolve secret references (still redacts values)')
+  .action(async (opts) => {
+    const { runConfigShow } = await import('./commands/config.js');
+    await runConfigShow(opts);
+  });
+
+configCmd
+  .command('validate')
+  .description('Validate the config file without running the server')
+  .option('--config <path>', 'Path to config YAML')
+  .action(async (opts) => {
+    const { runConfigValidate } = await import('./commands/config.js');
+    await runConfigValidate(opts);
+  });
+
+configCmd
+  .command('set <path> <value>')
+  .description('Set a config value (e.g. profiles.default.base_url https://foo)')
+  .option('--config <path>', 'Path to config YAML')
+  .action(async (path: string, value: string, opts) => {
+    const { runConfigSet } = await import('./commands/config.js');
+    await runConfigSet(path, value, opts);
+  });
+
+const cacheCmd = program.command('cache').description('Cache management');
+
+cacheCmd
+  .command('clear')
+  .description('Clear the cache')
+  .option('--profile <name>', 'Profile whose cache to clear')
+  .option('--config <path>', 'Path to config YAML')
+  .option('--context <name>', 'Specific context to clear (courses, grades, etc.)')
+  .action(async (opts) => {
+    const { runCacheClear } = await import('./commands/cache.js');
+    await runCacheClear(opts);
+  });
+
 program.parseAsync(process.argv);

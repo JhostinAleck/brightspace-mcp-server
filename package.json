@@ -49,6 +49,7 @@
     "prepublishOnly": "npm run check && npm run build:clean"
   },
   "dependencies": {
+    "@inquirer/prompts": "^7.10.1",
     "@modelcontextprotocol/sdk": "^1.26.0",
     "commander": "^12.0.0",
     "proper-lockfile": "^4.1.2",
