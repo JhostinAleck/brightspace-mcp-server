@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-04-23
+
 ### Added (Plan 6)
 
 - `brightspace-mcp setup` — interactive wizard that asks base URL, auth strategy, MFA, credential storage; writes `~/.brightspace-mcp/config.yaml` (0600 perms); auto-detects Claude Desktop / Cursor / Windsurf and offers to register.
