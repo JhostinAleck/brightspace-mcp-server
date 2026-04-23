@@ -2,6 +2,7 @@ import type { Course } from '@/contexts/courses/Course.js';
 import { CourseId } from '@/contexts/courses/CourseId.js';
 import type { Grade } from '@/contexts/grades/domain/Grade.js';
 import { LetterGrade } from '@/contexts/grades/domain/LetterGrade.js';
+import type { Feedback } from '@/contexts/assignments/domain/Feedback.js';
 
 export function coursesToCompact(courses: Course[]): string {
   if (courses.length === 0) return 'You have no courses.';
@@ -43,4 +44,13 @@ export function gradesToDetailed(grades: Grade[]): string {
     const displayed = g.displayedGrade ?? '';
     return `• ${g.itemName} — ${pts} = ${pct}${letter}${displayed ? ` (display: ${displayed})` : ''}`;
   }).join('\n');
+}
+
+export function feedbackToText(fb: Feedback | null): string {
+  if (!fb) return 'No feedback posted yet.';
+  const score = fb.score !== null && fb.outOf !== null ? `${fb.score}/${fb.outOf}` : 'ungraded';
+  const pct = fb.percent !== null ? ` (${fb.percent.toFixed(1)}%)` : '';
+  const text = fb.text ? `\n\n"${fb.text}"` : '';
+  const released = fb.releasedAt ? `\nReleased: ${fb.releasedAt.toISOString().slice(0, 10)}` : '';
+  return `Feedback: ${score}${pct}${released}${text}`;
 }

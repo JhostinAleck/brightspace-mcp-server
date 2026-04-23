@@ -26,3 +26,10 @@ export const getMyGradesSchema = z.object({
 }).strict();
 
 export type GetMyGradesInput = z.infer<typeof getMyGradesSchema>;
+
+export const getFeedbackSchema = z.object({
+  course_id: z.number().int().positive(),
+  assignment_id: z.number().int().positive(),
+}).strict();
+
+export type GetFeedbackInputSchema = z.infer<typeof getFeedbackSchema>;
