@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-04-23
+
+### Added (Plan 7)
+
+- 3 write-capable MCP tools gated behind `--enable-writes` CLI flag AND `writes.enabled: true` config — both required.
+- `submit_assignment` — upload a file to a Brightspace Dropbox Folder via multipart POST.
+- `post_discussion_reply` — reply to a discussion topic.
+- `mark_announcement_read` — mark a news announcement as read.
+- Each write tool requires an `idempotency_key` (8-128 chars, client-supplied); duplicate calls with the same key return the cached response without re-executing against D2L.
+- `writes.dry_run: true` config option — returns a preview without calling D2L.
+- `WritesGate` (shared-kernel) — double-consent boolean gate used by the MCP tool registry.
+- `InMemoryIdempotencyStore` (shared-kernel) — TTL-aware (24h default), clock-injectable.
+- `AuditLogger` (shared-kernel) — emits WARN-level structured log lines for every write attempt, with correlation ID + tool + redacted args.
+- `AssignmentRepository.submit`, `CommunicationsRepository.postReply`, `CommunicationsRepository.markAnnouncementRead` domain methods + D2L implementations.
+- `D2lApiClient.postJson` and `D2lApiClient.postMultipart` for write paths. Writes bypass the HTTP response cache but still respect retry + bulkhead + circuit breaker + transport policy.
+- E2E writes test (`tests/e2e/writes.test.ts`) verifying both gating behavior and idempotency replay against mock D2L.
+
 ## [0.9.0] - 2026-04-23
 
 ### Added (Plan 6)

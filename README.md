@@ -92,6 +92,29 @@ brightspace-mcp config set <path> <value>
 brightspace-mcp cache clear             # Clear both memory and file cache
 ```
 
+## Enabling write operations
+
+Write tools (`submit_assignment`, `post_discussion_reply`, `mark_announcement_read`) are OFF by default. To enable:
+
+1. In `~/.brightspace-mcp/config.yaml`:
+
+   ```yaml
+   writes:
+     enabled: true
+     dry_run: false  # set true to preview without mutating D2L
+   ```
+
+2. Pass `--enable-writes` to `serve`:
+
+   ```bash
+   brightspace-mcp serve --enable-writes
+   ```
+
+Both gates are required. All writes:
+- Require a client-supplied `idempotency_key` (8-128 chars) — repeat calls with the same key return the cached response without re-executing against D2L.
+- Emit a WARN-level audit log line with correlation ID + tool + redacted args.
+- Honor `writes.dry_run: true` to return a preview without calling D2L.
+
 ## Register with an MCP client
 
 See [`docs/clients.md`](./docs/clients.md) for Claude Desktop, Cursor, and Windsurf snippets.
@@ -114,9 +137,9 @@ See [`docs/clients.md`](./docs/clients.md) for Claude Desktop, Cursor, and Winds
 - [x] Plan 3: Retry/backoff, rate limit, coalescing, File/Redis cache
 - [x] Plan 4: Grades + Assignments
 - [x] Plan 5: Content + Communications + Calendar + Roster
+- [x] Plan 6: CLI setup wizard
+- [x] Plan 7: Opt-in write operations
 - [x] Plan 8: Release pipeline
-- [ ] Plan 6: CLI setup wizard
-- [ ] Plan 7: Opt-in write operations
 
 ## License
 
