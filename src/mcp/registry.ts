@@ -10,6 +10,11 @@ import {
   getFeedbackSchema,
   getRosterSchema,
   getClasslistEmailsSchema,
+  getSyllabusSchema,
+  getCourseContentSchema,
+  getAnnouncementsSchema,
+  getDiscussionsSchema,
+  getCalendarEventsSchema,
 } from './schemas.js';
 import { handleCheckAuth, type CheckAuthDeps } from './tools/check-auth.tool.js';
 import { handleListMyCourses, type ListMyCoursesDeps } from './tools/list-my-courses.tool.js';
@@ -21,6 +26,11 @@ import { handleGetUpcomingDueDates, type GetUpcomingDueDatesDeps } from './tools
 import { handleGetFeedback, type GetFeedbackDeps } from './tools/get-feedback.tool.js';
 import { handleGetRoster, type GetRosterDeps } from './tools/get-roster.tool.js';
 import { handleGetClasslistEmails, type GetClasslistEmailsDeps } from './tools/get-classlist-emails.tool.js';
+import { handleGetSyllabus, type GetSyllabusDeps } from './tools/get-syllabus.tool.js';
+import { handleGetCourseContent, type GetCourseContentDeps } from './tools/get-course-content.tool.js';
+import { handleGetAnnouncements, type GetAnnouncementsDeps } from './tools/get-announcements.tool.js';
+import { handleGetDiscussions, type GetDiscussionsDeps } from './tools/get-discussions.tool.js';
+import { handleGetCalendarEvents, type GetCalendarEventsDeps } from './tools/get-calendar-events.tool.js';
 
 export interface ToolDeps
   extends CheckAuthDeps,
@@ -32,7 +42,12 @@ export interface ToolDeps
     GetUpcomingDueDatesDeps,
     GetFeedbackDeps,
     GetRosterDeps,
-    GetClasslistEmailsDeps {}
+    GetClasslistEmailsDeps,
+    GetSyllabusDeps,
+    GetCourseContentDeps,
+    GetAnnouncementsDeps,
+    GetDiscussionsDeps,
+    GetCalendarEventsDeps {}
 
 export function registerAllTools(server: McpServer, deps: ToolDeps): void {
   server.registerTool(
@@ -157,5 +172,65 @@ export function registerAllTools(server: McpServer, deps: ToolDeps): void {
       inputSchema: getClasslistEmailsSchema.shape,
     },
     async (input: unknown) => handleGetClasslistEmails(deps, input),
+  );
+
+  server.registerTool(
+    'get_syllabus',
+    {
+      title: 'Get Syllabus',
+      description:
+        'Return the course syllabus (overview page) as plain text.\n' +
+        'Use when the user wants to know course expectations, grading scheme, or what the class covers.',
+      inputSchema: getSyllabusSchema.shape,
+    },
+    async (input: unknown) => handleGetSyllabus(deps, input),
+  );
+
+  server.registerTool(
+    'get_course_content',
+    {
+      title: 'Get Course Content',
+      description:
+        'Return the course module tree with topics (files, quizzes, discussions, etc.).\n' +
+        'Use when the user asks what materials are posted or wants to navigate modules.',
+      inputSchema: getCourseContentSchema.shape,
+    },
+    async (input: unknown) => handleGetCourseContent(deps, input),
+  );
+
+  server.registerTool(
+    'get_announcements',
+    {
+      title: 'Get Announcements',
+      description:
+        'Return recent course announcements in reverse chronological order.\n' +
+        'Use when the user asks "what did the professor post" or wants recent news from a class.',
+      inputSchema: getAnnouncementsSchema.shape,
+    },
+    async (input: unknown) => handleGetAnnouncements(deps, input),
+  );
+
+  server.registerTool(
+    'get_discussions',
+    {
+      title: 'Get Discussions',
+      description:
+        'Return the list of discussion forums and topics for a course, with post counts and last-post timestamps.\n' +
+        'Use when the user asks about class discussions or wants to see what conversations are happening.',
+      inputSchema: getDiscussionsSchema.shape,
+    },
+    async (input: unknown) => handleGetDiscussions(deps, input),
+  );
+
+  server.registerTool(
+    'get_calendar_events',
+    {
+      title: 'Get Calendar Events',
+      description:
+        'Return course calendar events within the next N days (default 30). Useful for seeing exams, lectures, or instructor-scheduled events.\n' +
+        'Use when the user asks about scheduled events, exam dates, or class meetings.',
+      inputSchema: getCalendarEventsSchema.shape,
+    },
+    async (input: unknown) => handleGetCalendarEvents(deps, input),
   );
 }

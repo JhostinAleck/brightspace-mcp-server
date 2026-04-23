@@ -39,6 +39,12 @@ import { D2lGradeRepository } from '@/contexts/grades/infrastructure/D2lGradeRep
 import { CachedGradeRepository } from '@/contexts/grades/infrastructure/CachedGradeRepository.js';
 import { D2lAssignmentRepository } from '@/contexts/assignments/infrastructure/D2lAssignmentRepository.js';
 import { CachedAssignmentRepository } from '@/contexts/assignments/infrastructure/CachedAssignmentRepository.js';
+import { D2lContentRepository } from '@/contexts/content/infrastructure/D2lContentRepository.js';
+import { CachedContentRepository } from '@/contexts/content/infrastructure/CachedContentRepository.js';
+import { D2lCommunicationsRepository } from '@/contexts/communications/infrastructure/D2lCommunicationsRepository.js';
+import { CachedCommunicationsRepository } from '@/contexts/communications/infrastructure/CachedCommunicationsRepository.js';
+import { D2lCalendarRepository } from '@/contexts/calendar/infrastructure/D2lCalendarRepository.js';
+import { CachedCalendarRepository } from '@/contexts/calendar/infrastructure/CachedCalendarRepository.js';
 import { MetricsRegistry } from '@/shared-kernel/observability/MetricsRegistry.js';
 import { RequestCoalescer } from '@/contexts/http-api/resilience/RequestCoalescer.js';
 import { Bulkhead } from '@/contexts/http-api/resilience/Bulkhead.js';
@@ -283,6 +289,23 @@ export async function buildDependencies(input: BuildDependenciesInput): Promise<
     feedbackTtlMs: 5 * 60 * 1000,
   });
 
+  const rawContentRepo = new D2lContentRepository(apiClient, { le: versions.le });
+  const contentRepo = new CachedContentRepository(rawContentRepo, domainCacheBacking, {
+    syllabusTtlMs: 15 * 60 * 1000,
+    modulesTtlMs: 5 * 60 * 1000,
+  });
+
+  const rawCommunicationsRepo = new D2lCommunicationsRepository(apiClient, { le: versions.le });
+  const communicationsRepo = new CachedCommunicationsRepository(rawCommunicationsRepo, domainCacheBacking, {
+    announcementsTtlMs: 60 * 1000,
+    discussionsTtlMs: 2 * 60 * 1000,
+  });
+
+  const rawCalendarRepo = new D2lCalendarRepository(apiClient, { le: versions.le });
+  const calendarRepo = new CachedCalendarRepository(rawCalendarRepo, domainCacheBacking, {
+    ttlMs: 5 * 60 * 1000,
+  });
+
   return {
     ensureAuth,
     profile: profileName,
@@ -290,6 +313,9 @@ export async function buildDependencies(input: BuildDependenciesInput): Promise<
     courseRepo,
     gradeRepo,
     assignmentRepo,
+    contentRepo,
+    communicationsRepo,
+    calendarRepo,
     httpCache,
     domainCaches: { courses: domainCacheBacking },
     metrics,
