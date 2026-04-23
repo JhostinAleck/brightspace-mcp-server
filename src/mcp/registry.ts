@@ -4,17 +4,20 @@ import {
   listMyCoursesSchema,
   clearCacheSchema,
   getDiagnosticsSchema,
+  getMyGradesSchema,
 } from './schemas.js';
 import { handleCheckAuth, type CheckAuthDeps } from './tools/check-auth.tool.js';
 import { handleListMyCourses, type ListMyCoursesDeps } from './tools/list-my-courses.tool.js';
 import { handleClearCache, type ClearCacheDeps } from './tools/clear-cache.tool.js';
 import { handleGetDiagnostics, type GetDiagnosticsDeps } from './tools/get-diagnostics.tool.js';
+import { handleGetMyGrades, type GetMyGradesDeps } from './tools/get-my-grades.tool.js';
 
 export interface ToolDeps
   extends CheckAuthDeps,
     ListMyCoursesDeps,
     ClearCacheDeps,
-    GetDiagnosticsDeps {}
+    GetDiagnosticsDeps,
+    GetMyGradesDeps {}
 
 export function registerAllTools(server: McpServer, deps: ToolDeps): void {
   server.registerTool(
@@ -64,5 +67,18 @@ export function registerAllTools(server: McpServer, deps: ToolDeps): void {
       inputSchema: getDiagnosticsSchema.shape,
     },
     async (input: unknown) => handleGetDiagnostics(deps, input),
+  );
+
+  server.registerTool(
+    'get_my_grades',
+    {
+      title: 'Get My Grades',
+      description:
+        'Return grades for a specific course by numeric course id.\n' +
+        'Use when the user asks about their grade, score, or standing in a class.\n' +
+        'Defaults to compact format; pass format="detailed" for points breakdown.',
+      inputSchema: getMyGradesSchema.shape,
+    },
+    async (input: unknown) => handleGetMyGrades(deps, input),
   );
 }

@@ -35,6 +35,8 @@ import { FileCache } from '@/shared-kernel/cache/FileCache.js';
 import { LayeredCache } from '@/shared-kernel/cache/LayeredCache.js';
 import { HttpResponseCache } from '@/contexts/http-api/cache/HttpResponseCache.js';
 import { CachedCourseRepository } from '@/contexts/courses/infrastructure/CachedCourseRepository.js';
+import { D2lGradeRepository } from '@/contexts/grades/infrastructure/D2lGradeRepository.js';
+import { CachedGradeRepository } from '@/contexts/grades/infrastructure/CachedGradeRepository.js';
 import { MetricsRegistry } from '@/shared-kernel/observability/MetricsRegistry.js';
 import { RequestCoalescer } from '@/contexts/http-api/resilience/RequestCoalescer.js';
 import { Bulkhead } from '@/contexts/http-api/resilience/Bulkhead.js';
@@ -270,11 +272,15 @@ export async function buildDependencies(input: BuildDependenciesInput): Promise<
     byIdTtlMs: 10 * 60 * 1000,
   });
 
+  const rawGradeRepo = new D2lGradeRepository(apiClient, { le: versions.le });
+  const gradeRepo = new CachedGradeRepository(rawGradeRepo, domainCacheBacking, { ttlMs: 60 * 1000 });
+
   return {
     ensureAuth,
     profile: profileName,
     baseUrl,
     courseRepo,
+    gradeRepo,
     httpCache,
     domainCaches: { courses: domainCacheBacking },
     metrics,
