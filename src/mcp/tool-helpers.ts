@@ -8,6 +8,8 @@ import { AssignmentId } from '@/contexts/assignments/domain/AssignmentId.js';
 import type { Classmate } from '@/contexts/courses/Classmate.js';
 import type { Syllabus } from '@/contexts/content/domain/Syllabus.js';
 import type { Module } from '@/contexts/content/domain/Module.js';
+import type { Announcement } from '@/contexts/communications/domain/Announcement.js';
+import type { DiscussionForum } from '@/contexts/communications/domain/DiscussionForum.js';
 
 export function coursesToCompact(courses: Course[]): string {
   if (courses.length === 0) return 'You have no courses.';
@@ -115,4 +117,28 @@ export function courseContentToText(modules: readonly Module[], depth: number): 
     return out;
   };
   return `Course content:\n${render(modules, 0).join('\n')}`;
+}
+
+export function announcementsToText(items: Announcement[]): string {
+  if (items.length === 0) return 'No announcements.';
+  const lines = items.map((a) => {
+    const author = a.authorName ? ` — ${a.authorName}` : '';
+    const body = (a.html ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 200);
+    return ` • ${a.postedAt.toISOString().slice(0, 10)}: ${a.title}${author}\n    ${body}`;
+  });
+  return `Announcements:\n${lines.join('\n')}`;
+}
+
+export function discussionsToText(forums: DiscussionForum[]): string {
+  if (forums.length === 0) return 'No discussion forums.';
+  const out: string[] = [];
+  for (const f of forums) {
+    out.push(`📋 ${f.name}`);
+    if (f.topics.length === 0) out.push('  (no topics)');
+    for (const t of f.topics) {
+      const last = t.lastPostAt ? `, last ${t.lastPostAt.toISOString().slice(0, 10)}` : '';
+      out.push(`  · ${t.name} (${t.postCount} posts${last})`);
+    }
+  }
+  return out.join('\n');
 }

@@ -72,3 +72,14 @@ export const getCourseContentSchema = z.object({
   depth: z.number().int().nonnegative().max(5).default(2),
 }).strict();
 export type GetCourseContentInputSchema = z.infer<typeof getCourseContentSchema>;
+
+export const getAnnouncementsSchema = z.object({
+  course_id: z.number().int().positive(),
+  limit: z.number().int().positive().max(50).default(10),
+}).strict();
+export type GetAnnouncementsInputSchema = z.infer<typeof getAnnouncementsSchema>;
+
+export const getDiscussionsSchema = z.object({
+  course_id: z.number().int().positive(),
+}).strict();
+export type GetDiscussionsInputSchema = z.infer<typeof getDiscussionsSchema>;
