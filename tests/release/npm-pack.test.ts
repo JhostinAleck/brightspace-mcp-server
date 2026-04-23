@@ -1,12 +1,18 @@
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 describe('npm pack smoke test', () => {
   let workDir: string;
+
+  beforeAll(() => {
+    if (!existsSync('build/cli/main.js')) {
+      execFileSync('npm', ['run', 'build'], { stdio: 'inherit' });
+    }
+  }, 120_000);
 
   beforeEach(() => {
     workDir = mkdtempSync(join(tmpdir(), 'bmcp-pack-'));
