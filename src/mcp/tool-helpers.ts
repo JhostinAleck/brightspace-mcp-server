@@ -10,6 +10,7 @@ import type { Syllabus } from '@/contexts/content/domain/Syllabus.js';
 import type { Module } from '@/contexts/content/domain/Module.js';
 import type { Announcement } from '@/contexts/communications/domain/Announcement.js';
 import type { DiscussionForum } from '@/contexts/communications/domain/DiscussionForum.js';
+import type { CalendarEvent } from '@/contexts/calendar/domain/CalendarEvent.js';
 
 export function coursesToCompact(courses: Course[]): string {
   if (courses.length === 0) return 'You have no courses.';
@@ -141,4 +142,14 @@ export function discussionsToText(forums: DiscussionForum[]): string {
     }
   }
   return out.join('\n');
+}
+
+export function calendarEventsToText(events: CalendarEvent[], days: number): string {
+  if (events.length === 0) return `No events in the next ${days} days.`;
+  const lines = events.map((e) => {
+    const loc = e.location ? ` @ ${e.location}` : '';
+    const end = e.endAt ? ` → ${e.endAt.toISOString().slice(11, 16)}` : '';
+    return ` • ${e.startAt.toISOString().slice(0, 16).replace('T', ' ')}${end} — ${e.title}${loc}`;
+  });
+  return `Events in next ${days} days:\n${lines.join('\n')}`;
 }

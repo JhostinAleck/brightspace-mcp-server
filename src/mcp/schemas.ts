@@ -83,3 +83,9 @@ export const getDiscussionsSchema = z.object({
   course_id: z.number().int().positive(),
 }).strict();
 export type GetDiscussionsInputSchema = z.infer<typeof getDiscussionsSchema>;
+
+export const getCalendarEventsSchema = z.object({
+  course_id: z.number().int().positive(),
+  days: z.number().int().positive().max(365).default(30),
+}).strict();
+export type GetCalendarEventsInputSchema = z.infer<typeof getCalendarEventsSchema>;
