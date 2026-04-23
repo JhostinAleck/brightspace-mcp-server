@@ -61,3 +61,14 @@ export const getClasslistEmailsSchema = z.object({
 }).strict();
 
 export type GetClasslistEmailsInputSchema = z.infer<typeof getClasslistEmailsSchema>;
+
+export const getSyllabusSchema = z.object({
+  course_id: z.number().int().positive(),
+}).strict();
+export type GetSyllabusInputSchema = z.infer<typeof getSyllabusSchema>;
+
+export const getCourseContentSchema = z.object({
+  course_id: z.number().int().positive(),
+  depth: z.number().int().nonnegative().max(5).default(2),
+}).strict();
+export type GetCourseContentInputSchema = z.infer<typeof getCourseContentSchema>;

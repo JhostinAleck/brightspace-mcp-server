@@ -6,6 +6,8 @@ import type { Feedback } from '@/contexts/assignments/domain/Feedback.js';
 import type { Assignment } from '@/contexts/assignments/domain/Assignment.js';
 import { AssignmentId } from '@/contexts/assignments/domain/AssignmentId.js';
 import type { Classmate } from '@/contexts/courses/Classmate.js';
+import type { Syllabus } from '@/contexts/content/domain/Syllabus.js';
+import type { Module } from '@/contexts/content/domain/Module.js';
 
 export function coursesToCompact(courses: Course[]): string {
   if (courses.length === 0) return 'You have no courses.';
@@ -92,4 +94,25 @@ export function rosterToText(classmates: Classmate[]): string {
 export function emailsToText(emails: string[]): string {
   if (emails.length === 0) return 'No emails found.';
   return emails.join(', ');
+}
+
+export function syllabusToText(s: Syllabus | null): string {
+  if (!s) return 'No syllabus posted yet.';
+  const stripped = (s.html ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const updated = s.updatedAt ? `\nUpdated: ${s.updatedAt.toISOString().slice(0, 10)}` : '';
+  return `${s.title}:${updated}\n\n${stripped.slice(0, 2000)}${stripped.length > 2000 ? '…' : ''}`;
+}
+
+export function courseContentToText(modules: readonly Module[], depth: number): string {
+  if (modules.length === 0) return 'No course content posted yet.';
+  const render = (mods: readonly Module[], level: number): string[] => {
+    const out: string[] = [];
+    for (const m of mods) {
+      out.push(`${'  '.repeat(level)}📁 ${m.title}`);
+      for (const t of m.topics) out.push(`${'  '.repeat(level + 1)}· ${t.title} [${t.kind}]`);
+      if (level < depth) out.push(...render(m.submodules, level + 1));
+    }
+    return out;
+  };
+  return `Course content:\n${render(modules, 0).join('\n')}`;
 }
