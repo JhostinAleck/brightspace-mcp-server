@@ -39,7 +39,5 @@ jobs:
       - run: npm run check
       - run: npm run build:clean
 
-      - name: Publish to npm with provenance
+      - name: Publish to npm with provenance (OIDC trusted publisher)
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
