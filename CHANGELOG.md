@@ -6,6 +6,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-04-25
+
+### Added (Plan 8)
+
+- Docker image with OCI labels, healthcheck, and multi-arch (linux/amd64, linux/arm64) GHCR publishing.
+- `docker-compose.yml` with default and optional `redis` profile.
+- `.github/workflows/release-npm.yml` — tag-triggered npm publish with OIDC provenance.
+- `.github/workflows/release-docker.yml` — tag + main-triggered GHCR push, cosign keyless signing, GitHub build provenance attestation.
+- `.github/workflows/release-github.yml` — tag-triggered GitHub Release creation with CycloneDX SBOM asset and CHANGELOG-derived notes.
+- `.github/workflows/security.yml` — gitleaks secret scanning, `npm audit --audit-level=high`, OSSF Scorecard supply-chain posture scan.
+- `.github/workflows/ci.yml` — added `actionlint` job.
+- README badges, `npx` / Docker / compose / source install paths, feature list, status.
+- `docs/clients.md` with Claude Desktop, Cursor, Windsurf, and Docker MCP client snippets.
+- `prepublishOnly` script enforcing full check before publish.
+- npm metadata: `keywords`, `repository`, `bugs`, `homepage`, `author`.
+
+### Changed (Plan 8)
+
+- `docker/Dockerfile` runtime stage now prunes dev dependencies and copies `README.md` + `LICENSE` into the image for OCI metadata compliance.
+- `.dockerignore` tightened to keep `README.md` and `LICENSE` in the build context.
+
+### Fixed (Plan 8)
+
+- `ioredis`, `keytar`, `otplib` removed from `devDependencies` — they now appear only in `optionalDependencies` so `npm prune --omit=dev` retains them. Previously these were stripped from production images, causing `--help` to crash with `ERR_MODULE_NOT_FOUND`.
+- Dockerfile `HEALTHCHECK` changed from a no-op (`node -e "process.exit(0)"`) to `node build/cli/main.js --version` which validates the full module graph loads.
+
 ### Added
 
 - Initial project scaffold with layered architecture (bounded contexts, dependency-cruiser enforcement)
