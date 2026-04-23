@@ -44,3 +44,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - 4 new MCP tools: `get_my_grades`, `get_assignments`, `get_upcoming_due_dates` (cross-context orchestration at MCP layer), `get_feedback`.
 - Tool formatters (`gradesToCompact/Detailed`, `assignmentsToCompact/Detailed`, `feedbackToText`) in `src/mcp/tool-helpers.ts`.
 - E2E smoke test extended to exercise `get_my_grades` and `get_assignments` against the mock D2L server.
+
+### Added (Plan 5)
+
+- `courses` context extended: `Classmate` value object + `findRoster`/`findClasslistEmails` on `CourseRepository`, implemented by `D2lCourseRepository` (LP classlist endpoints) and cached via `CachedCourseRepository`. `D2lCourseRepository` now accepts `{ le, lp }` versions; composition-root passes both.
+- `content` bounded context: `Syllabus`, `Module`, `Topic` entities, `ContentRepository` interface, `getSyllabus` + `getCourseContent` use cases, `D2lContentRepository` (overview + content tree), `CachedContentRepository` with sentinel for null syllabus.
+- `communications` bounded context: `Announcement`, `DiscussionForum`, `DiscussionTopic` entities, `CommunicationsRepository` interface, `getAnnouncements` (reverse-chronological + limit) and `getDiscussions` use cases, `D2lCommunicationsRepository` (news + discussions endpoints), `CachedCommunicationsRepository`.
+- `calendar` bounded context: `CalendarEvent` entity, `CalendarRepository` interface, `getCalendarEvents` use case, `D2lCalendarRepository` (calendar events endpoint), `CachedCalendarRepository` keyed by `(course, from, to)`.
+- 7 new MCP tools: `get_roster`, `get_classlist_emails`, `get_syllabus`, `get_course_content`, `get_announcements`, `get_discussions`, `get_calendar_events` — bringing the total to 15.
+- Formatters in `src/mcp/tool-helpers.ts`: `rosterToText`, `emailsToText`, `syllabusToText`, `courseContentToText`, `announcementsToText`, `discussionsToText`, `calendarEventsToText`.
+- E2E smoke test extended with 3 new assertions (roster, syllabus, announcements + calendar).
