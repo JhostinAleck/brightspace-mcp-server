@@ -1,0 +1,8 @@
+{
+  "forums": [
+    { "ForumId": 500, "Name": "Main Discussion" }
+  ],
+  "topics_500": [
+    { "TopicId": 1001, "Name": "Q&A", "Description": { "Text": "Ask anything" }, "TotalPostCount": 42, "LastPostDate": "2026-04-22T15:30:00Z" }
+  ]
+}

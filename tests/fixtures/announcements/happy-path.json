@@ -1,0 +1,4 @@
+[
+  { "Id": 777, "Title": "Midterm next week", "Body": { "Html": "<p>Study!</p>" }, "Author": { "DisplayName": "Prof X" }, "StartDate": "2026-04-20T12:00:00Z" },
+  { "Id": 778, "Title": "Office hours", "Body": { "Html": "<p>Thursdays</p>" }, "Author": { "DisplayName": null }, "StartDate": "2026-04-18T09:00:00Z" }
+]
