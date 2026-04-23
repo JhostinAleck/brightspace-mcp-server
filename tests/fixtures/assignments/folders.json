@@ -1,0 +1,18 @@
+[
+  {
+    "Id": 5001,
+    "Name": "Essay 1",
+    "CustomInstructions": { "Html": "<p>Write 500 words</p>" },
+    "DueDate": "2026-05-01T23:59:00Z",
+    "Submissions": [
+      { "Submitter": { "Identifier": "99" }, "SubmissionDate": "2026-04-20T10:00:00Z", "Comments": { "Text": "Final version" } }
+    ]
+  },
+  {
+    "Id": 5002,
+    "Name": "Discussion Post",
+    "CustomInstructions": null,
+    "DueDate": null,
+    "Submissions": []
+  }
+]
