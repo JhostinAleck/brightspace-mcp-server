@@ -63,4 +63,17 @@ profiles:
     expect(parsed.profile).toBe('smoke');
     expect(parsed.versions.lp).toBe('1.56');
   });
+
+  it('exposes get_my_grades and returns Smoke Exam', async () => {
+    const r = await client.callTool({ name: 'get_my_grades', arguments: { course_id: 1 } });
+    const text = ((r.content as Array<{ text: string }>)[0])?.text ?? '';
+    expect(text).toContain('Smoke Exam');
+    expect(text).toContain('92.0%');
+  });
+
+  it('exposes get_assignments and lists Smoke Assignment', async () => {
+    const r = await client.callTool({ name: 'get_assignments', arguments: { course_id: 1 } });
+    const text = ((r.content as Array<{ text: string }>)[0])?.text ?? '';
+    expect(text).toContain('Smoke Assignment');
+  });
 });

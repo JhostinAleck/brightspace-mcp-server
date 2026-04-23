@@ -38,6 +38,30 @@ export function startMockD2l(): Promise<{ url: string; close: () => Promise<void
         );
         return;
       }
+      if (req.url?.match(/\/d2l\/api\/le\/1\.91\/1\/grades\/$/)) {
+        res.end(JSON.stringify([
+          { Id: 10, Name: 'Smoke Exam', GradeType: 'Numeric', MaxPoints: 100, Weight: 100 },
+        ]));
+        return;
+      }
+      if (req.url?.match(/\/d2l\/api\/le\/1\.91\/1\/grades\/values\/myGradeValues\/$/)) {
+        res.end(JSON.stringify([
+          { GradeObjectIdentifier: '10', PointsNumerator: 92, PointsDenominator: 100, DisplayedGrade: '92' },
+        ]));
+        return;
+      }
+      if (req.url?.match(/\/d2l\/api\/le\/1\.91\/1\/dropbox\/folders\/$/)) {
+        res.end(JSON.stringify([
+          {
+            Id: 9001,
+            Name: 'Smoke Assignment',
+            CustomInstructions: { Html: '<p>Do the thing</p>' },
+            DueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+            Submissions: [],
+          },
+        ]));
+        return;
+      }
       res.statusCode = 404;
       res.end('{}');
     });
