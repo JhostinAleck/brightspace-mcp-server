@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-04-23
+
+### Fixed
+
+- `--version` now reads dynamically from `package.json` instead of the hardcoded `0.1.0` it reported in v0.8.0.
+- `release-docker.yml` now lowercases the image owner before cosign reference construction — previously the `sign` job failed with "could not parse reference" when the GitHub owner had uppercase characters.
+- `release-npm.yml` pinned to `production` environment for OIDC trusted-publisher binding (enables full npm provenance attestation without long-lived tokens).
+
 ## [0.8.0] - 2026-04-25
 
 ### Added (Plan 8)
