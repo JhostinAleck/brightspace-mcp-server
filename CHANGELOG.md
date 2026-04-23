@@ -36,3 +36,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - 2 new MCP tools: `clear_cache` and `get_diagnostics`.
 - E2E smoke test reactivated — runs against a local mock D2L server using the new localhost-http transport mode (`BRIGHTSPACE_ALLOW_HTTP_LOCALHOST=1`).
 - Composition root wires cache tiers, metrics, and the full resilience stack into `D2lApiClient`.
+
+### Added (Plan 4)
+
+- `grades` bounded context: `Grade`, `GradeItem`, `LetterGrade` value object, `GradeRepository` interface, `getMyGrades` use case, `D2lGradeRepository` with fixture-based integration tests, `CachedGradeRepository` decorator.
+- `assignments` bounded context: `Assignment`, `Submission`, `Feedback`, `AssignmentId`, `DueDate` value objects, `AssignmentRepository` interface with `findByCourse` + `findFeedback`, 3 use cases (`getAssignments`, `getUpcomingDueDates`, `getFeedback`), `D2lAssignmentRepository`, `CachedAssignmentRepository` decorator (caches nullable feedback correctly via discriminated sentinel).
+- 4 new MCP tools: `get_my_grades`, `get_assignments`, `get_upcoming_due_dates` (cross-context orchestration at MCP layer), `get_feedback`.
+- Tool formatters (`gradesToCompact/Detailed`, `assignmentsToCompact/Detailed`, `feedbackToText`) in `src/mcp/tool-helpers.ts`.
+- E2E smoke test extended to exercise `get_my_grades` and `get_assignments` against the mock D2L server.
