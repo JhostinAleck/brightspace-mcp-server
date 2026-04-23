@@ -1,0 +1,39 @@
+# Brightspace MCP — docker-compose
+# Default profile: standalone server (no cache persistence across restarts).
+# Redis profile: run with `docker compose --profile redis up` to enable the RedisCache backend.
+
+services:
+  brightspace-mcp:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: ghcr.io/jhostinaleck/brightspace-mcp:latest
+    stdin_open: true
+    tty: true
+    environment:
+      - BRIGHTSPACE_CONFIG=/config/config.yaml
+      - BRIGHTSPACE_CACHE_BACKEND=${BRIGHTSPACE_CACHE_BACKEND:-memory}
+      - BRIGHTSPACE_REDIS_URL=${BRIGHTSPACE_REDIS_URL:-}
+    volumes:
+      - ${HOME}/.brightspace-mcp:/config:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+        required: false
+    restart: unless-stopped
+
+  redis:
+    profiles: ["redis"]
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  redis-data:
